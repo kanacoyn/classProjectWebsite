@@ -1,8 +1,8 @@
 import { firebaseConfig } from "./config/Config";
-import { initializeApp } from "firebase/App";
+import { initializeApp } from "firebase/app";
 // import config from "./config/Config";
 import "./App.css";
-// import "./index.css";
+
 import { Test } from "./components/Test";
 const FirebaseApp = initializeApp(firebaseConfig);
 
