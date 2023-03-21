@@ -1,23 +1,15 @@
 import { firebaseConfig } from "./config/Config";
 import { initializeApp } from "firebase/App";
+// import config from "./config/Config";
 import "./App.css";
-
+// import "./index.css";
+import { Test } from "./components/Test";
 const FirebaseApp = initializeApp(firebaseConfig);
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        Hello World
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Test />
     </div>
   );
 }
