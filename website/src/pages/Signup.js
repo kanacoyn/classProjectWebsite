@@ -4,7 +4,26 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
+import { useState, useEffect } from "react";
+
 export function Signup(props) {
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [validEmail, setValidEmail] = useState(false);
+  const [validPassword, setValidPassword] = useState(false);
+
+  useEffect(() => {
+    if (email.indexOf("@") > 0) {
+      setValidEmail(true);
+    }
+  }, [email]);
+
+  useEffect(() => {
+    if (password.length >= 8) {
+      setValidPassword(true);
+    }
+  }, [password]);
+
   return (
     <Container fluid>
       <Row>
@@ -16,12 +35,18 @@ export function Signup(props) {
               <Form.Control
                 type="email"
                 placeholder="email@domain.com"
-                onChange={(evt) => console.log(evt.target.value)}
+                onChange={(evt) => setEmail(evt.target.value)}
+                value={email}
               />
             </Form.Group>
             <Form.Group>
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="min 8 characters" />
+              <Form.Control
+                type="password"
+                placeholder="min 8 characters"
+                onChange={(evt) => setPassword(evt.target.value)}
+                value={password}
+              />
             </Form.Group>
             <br />
             <Button
@@ -29,6 +54,7 @@ export function Signup(props) {
               type="submit"
               className="my-2 w-100"
               size="lg"
+              disabled={validEmail && validPassword ? false : true}
             >
               Sign Up
             </Button>
