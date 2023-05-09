@@ -4,37 +4,56 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { FBAuthContext } from "../contexts/FBAuthContext";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export function Signup(props) {
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [validPassword, setValidPassword] = useState(false);
+
+  const FBAuth = useContext(FBAuthContext);
 
   useEffect(() => {
     if (email.indexOf("@") > 0) {
       setValidEmail(true);
+    } else {
+      setValidEmail(false);
     }
   }, [email]);
 
   useEffect(() => {
     if (password.length >= 8) {
       setValidPassword(true);
+    } else {
+      setValidPassword(false);
     }
   }, [password]);
 
+  const SignupHandler = () => {
+    createUserWithEmailAndPassword(FBAuth, email, password)
+      .then((user) => {
+        //user is created in firebase
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error.code, error.message);
+      });
+  };
+
   return (
-    <Container fluid>
+    <Container fluid className="mt-4">
       <Row>
         <Col md={{ span: 4, offset: 4 }}>
-          <Form>
+          <Form onSubmit={() => SignupHandler()}>
             <h3>Sign up for an account</h3>
             <Form.Group>
-              <Form.Label>Email adress</Form.Label>
+              <Form.Label>Email address</Form.Label>
               <Form.Control
                 type="email"
-                placeholder="email@domain.com"
+                placeholder="you@domain.com"
                 onChange={(evt) => setEmail(evt.target.value)}
                 value={email}
               />
@@ -43,12 +62,11 @@ export function Signup(props) {
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="min 8 characters"
+                placeholder="minimum 8 characters"
                 onChange={(evt) => setPassword(evt.target.value)}
                 value={password}
               />
             </Form.Group>
-            <br />
             <Button
               variant="primary"
               type="submit"
@@ -56,7 +74,7 @@ export function Signup(props) {
               size="lg"
               disabled={validEmail && validPassword ? false : true}
             >
-              Sign Up
+              Sign up
             </Button>
           </Form>
         </Col>
