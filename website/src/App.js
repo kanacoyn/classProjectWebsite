@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 import { useState } from "react";
 import "./App.css";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
+
 //page
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
@@ -39,6 +41,16 @@ const AuthNavRoutes = [
 function App() {
   const [navItems, setNavItems] = useState(NavRoutes);
   // const [auth, setAuth] = useState(null);
+
+  onAuthStateChanged(FirebaseAuth, (user) => {
+    if (user) {
+      setAuth(user);
+      setNavItems(AuthNavRoutes);
+    } else {
+      setAuth(null);
+      setNavItems(NavRoutes);
+    }
+  });
 
   return (
     <div className="App">

@@ -47,7 +47,12 @@ export function Signup(props) {
     <Container fluid className="mt-4">
       <Row>
         <Col md={{ span: 4, offset: 4 }}>
-          <Form onSubmit={() => SignupHandler()}>
+          <Form
+            onSubmit={(evt) => {
+              evt.preventDefault();
+              SignupHandler();
+            }}
+          >
             <h3>Sign up for an account</h3>
             <Form.Group>
               <Form.Label>Email address</Form.Label>
