@@ -8,6 +8,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
+import { getFirestore } from "firebase/database";
 
 //page
 import { Home } from "./pages/Home";
@@ -27,6 +28,7 @@ import { FBAuthContext } from "./contexts/FBAuthContext";
 
 const FirebaseApp = initializeApp(firebaseConfig);
 const FirebaseAuth = getAuth(FirebaseApp);
+const FirebaseDB = getFirebasestore(FirebaseApp);
 
 const NavRoutes = [
   { name: "Home", goto: "/" },
