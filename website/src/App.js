@@ -5,7 +5,7 @@ import "./App.css";
 import { getAuth } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/database";
-
+import { FBDBContext } from "./contexts/FBDBContext";
 //page
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
@@ -62,14 +62,16 @@ function App() {
         <Header />
       </NavContext.Provider>
       <FBAuthContext.Provider value={FirebaseAuth}>
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/about" element={<About />}></Route>
-          <Route path="/contact" element={<Contact />}></Route>
-          <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/signin" element={<Signin />}></Route>
-          <Route path="/signout" element={<Signout />}></Route>
-        </Routes>
+        <FBDBContext.Provider value={FirebaseDB}>
+          <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/about" element={<About />}></Route>
+            <Route path="/contact" element={<Contact />}></Route>
+            <Route path="/signup" element={<Signup />}></Route>
+            <Route path="/signin" element={<Signin />}></Route>
+            <Route path="/signout" element={<Signout />}></Route>
+          </Routes>
+        </FBDBContext.Provider>
       </FBAuthContext.Provider>
     </div>
   );
