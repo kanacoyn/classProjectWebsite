@@ -25,6 +25,12 @@ export function Home() {
     setData(books);
   };
 
+  useEffect(() => {
+    if (data.length == 0) {
+      getData();
+    }
+  });
+
   return (
     <div>
       <h1>Home</h1>
