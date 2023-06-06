@@ -1,28 +1,46 @@
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-
 import { useParams } from "react-router-dom";
+import { ReviewForm } from "../components/ReviewForm";
 
 import { useContext, useState, useEffect } from "react";
 import { FBDBContext } from "../contexts/FBDBContext";
 import { FBStorageContext } from "../contexts/FBStorageContext";
-import { AuthContext } from "../contexts/AuthContexts";
-import { doc, getDoc } from "firebase/firestore";
+import { FBAuthContext } from "../contexts/FBAuthContext";
+
+import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { ref, getDownloadURL } from "firebase/storage";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export function Detail(props) {
   const [bookData, setBookData] = useState();
+  const [auth, setAuth] = useState();
+
   let { bookId } = useParams();
 
   const FBDB = useContext(FBDBContext);
+  const FBStorage = useContext(FBStorageContext);
+  const FBAuth = useContext(FBAuthContext);
+
+  onAuthStateChanged(FBAuth, (user) => {
+    if (user) {
+      //user is signed in
+      setAuth(user);
+    } else {
+      //user is not signed in
+      setAuth(null);
+    }
+  });
+
   const bookRef = doc(FBDB, "books", bookId);
 
-  const getBook = async () => {
+  const getBook = async (id) => {
     let book = await getDoc(bookRef);
     if (book.exists()) {
-      setBookData(book);
+      setBookData(book.data());
     } else {
-      console.log("no data");
+      // no book exists with the ID
     }
   };
 
@@ -32,24 +50,46 @@ export function Detail(props) {
     }
   });
 
+  //function to handle review submission
+  const reviewHandler = async (reviewData) => {
+    //create a document inside firestore
+    const path = `books/${bookID}/reviews`;
+    const review = await addDoc(collection(FBDB, path), reviewData);
+  };
+
+  const Image = (props) => {
+    const [imgPath, setImgPath] = useState();
+    const imgRef = ref(FBStorage, `book_cover/${props.path}`);
+    getDownloadURL(imgRef).then((url) => setImgPath(url));
+
+    return <img src={imgPath} className="img-fluid" />;
+  };
+
   if (bookData) {
     return (
       <Container>
+        <Row className="my-3">
+          <Col md="4">
+            <Image path={bookData.image} />
+          </Col>
+          <Col>
+            <h2>{bookData.title}</h2>
+            <h4>{bookData.author}</h4>
+            <p>{bookData.year}</p>
+            <p>{bookData.summary}</p>
+            <p>ISBN10 :{bookData.isbn10} </p>
+            <p>ISBN13 :{bookData.isbn13}</p>
+            <p>{bookData.pages} pages</p>
+          </Col>
+        </Row>
         <Row>
           <Col>
-            <h1>{bookId}</h1>
+            <ReviewForm user={auth} />
           </Col>
-          <Col>Right</Col>
         </Row>
       </Container>
     );
   } else {
-    return (
-      <Container>
-        <Row>
-          <Col>Loading</Col>
-        </Row>
-      </Container>
-    );
+    return null;
   }
 }
