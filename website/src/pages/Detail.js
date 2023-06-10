@@ -9,13 +9,14 @@ import { FBDBContext } from "../contexts/FBDBContext";
 import { FBStorageContext } from "../contexts/FBStorageContext";
 import { FBAuthContext } from "../contexts/FBAuthContext";
 
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export function Detail(props) {
   const [bookData, setBookData] = useState();
   const [auth, setAuth] = useState();
+  const [bookReviews, setBookReviews] = useState([]);
 
   let { bookId } = useParams();
 
@@ -32,6 +33,18 @@ export function Detail(props) {
       setAuth(null);
     }
   });
+
+  const getReviews = async () => {
+    const path = `books/${bookId}/reviews`;
+    const querySnapshot = await getDocs(collection(FBDB, path));
+    let reviews = [];
+    querySnapshot.forEach((item) => {
+      let review = item.data();
+      review.id = item.id;
+      reviews.push(review);
+    });
+    setBookReviews(reviews);
+  };
 
   const bookRef = doc(FBDB, "books", bookId);
 
@@ -53,7 +66,7 @@ export function Detail(props) {
   //function to handle review submission
   const reviewHandler = async (reviewData) => {
     //create a document inside firestore
-    const path = `books/${bookID}/reviews`;
+    const path = `books/${bookId}/reviews`;
     const review = await addDoc(collection(FBDB, path), reviewData);
   };
 
