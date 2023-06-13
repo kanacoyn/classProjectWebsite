@@ -1,6 +1,7 @@
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Card from "react-bootstrap/Card";
 import { useParams } from "react-router-dom";
 import { ReviewForm } from "../components/ReviewForm";
 
@@ -11,7 +12,7 @@ import { FBAuthContext } from "../contexts/FBAuthContext";
 
 import { doc, getDoc, addDoc, collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 
 export function Detail(props) {
   const [bookData, setBookData] = useState();
@@ -46,12 +47,28 @@ export function Detail(props) {
     setBookReviews(reviews);
   };
 
+  const ReviewCollection = bookReviews.map((item) => {
+    return (
+      <Col md="3">
+        <Card>
+          <Card.Title>
+            <h5>{item.title}</h5>
+          </Card.Title>
+          <Card.Text>
+            <p>{item.content}</p>
+          </Card.Text>
+        </Card>
+      </Col>
+    );
+  });
+
   const bookRef = doc(FBDB, "books", bookId);
 
   const getBook = async (id) => {
     let book = await getDoc(bookRef);
     if (book.exists()) {
       setBookData(book.data());
+      getReviews();
     } else {
       // no book exists with the ID
     }
@@ -63,9 +80,9 @@ export function Detail(props) {
     }
   });
 
-  //function to handle review submission
-  const reviewHandler = async (reviewData) => {
-    //create a document inside firestore
+  // function to handle review submission
+  const ReviewHandler = async (reviewData) => {
+    // create a document inside firestore
     const path = `books/${bookId}/reviews`;
     const review = await addDoc(collection(FBDB, path), reviewData);
   };
@@ -95,14 +112,25 @@ export function Detail(props) {
             <p>{bookData.pages} pages</p>
           </Col>
         </Row>
+
         <Row>
           <Col>
-            <ReviewForm user={auth} />
+            <ReviewForm user={auth} handler={ReviewHandler} />
+          </Col>
+        </Row>
+
+        <Row>{ReviewCollection}</Row>
+      </Container>
+    );
+  } else {
+    return (
+      <Container>
+        <Row>
+          <Col>
+            <h2>Loading...</h2>
           </Col>
         </Row>
       </Container>
     );
-  } else {
-    return null;
   }
 }
