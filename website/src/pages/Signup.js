@@ -13,8 +13,18 @@ export function Signup(props) {
   const [password, setPassword] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [validPassword, setValidPassword] = useState(false);
+  const [username, setUsername] = useState("");
+  const [validUsername, setValiduUsername] = useState(false);
 
   const FBAuth = useContext(FBAuthContext);
+  const allowedChars = Array.from("abcdefghijklmnopqrstuvwxyz1234567890_");
+
+  useEffect(() => {
+    //check if username is made of allowed chars
+    //check if username does not exists in Firebase
+    //if both are true then allow signup
+    //else do not allow sign up
+  }, [username]);
 
   useEffect(() => {
     if (email.indexOf("@") > 0) {
@@ -54,6 +64,15 @@ export function Signup(props) {
             }}
           >
             <h3>Sign up for an account</h3>
+            <Form.Group>
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="unique username"
+                onChange={(evt) => setUsername(evt.target.value)}
+                value={username}
+              />
+            </Form.Group>
             <Form.Group>
               <Form.Label>Email address</Form.Label>
               <Form.Control
