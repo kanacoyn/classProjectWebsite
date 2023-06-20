@@ -43,13 +43,13 @@ export function Home() {
     const imgRef = ref(FBStorage, `book_cover/${props.path}`);
     getDownloadURL(imgRef).then((url) => setImgPath(url));
 
-    return <Card.Img variant="top" src={imgPath} />;
+    return <Card.Img variant="top" src={imgPath} className="card-image" />;
   };
 
   const Columns = data.map((book, key) => {
     return (
       <Col md="4" key={key}>
-        <Card>
+        <Card className="book-card">
           <Image path={book.image} />
           <Card.Body>
             <Card.Title>{book.title}</Card.Title>

@@ -7,6 +7,9 @@ import Button from "react-bootstrap/Button";
 import { useState, useEffect, useContext } from "react";
 import { FBAuthContext } from "../contexts/FBAuthContext";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { FBDBContext } from "../contexts/FBDBContext";
+import { useNavigate } from "react-router-dom";
 
 export function Signup(props) {
   const [email, setEmail] = useState("");
@@ -14,16 +17,54 @@ export function Signup(props) {
   const [validEmail, setValidEmail] = useState(false);
   const [validPassword, setValidPassword] = useState(false);
   const [username, setUsername] = useState("");
-  const [validUsername, setValiduUsername] = useState(false);
+  const [validUsername, setValidUsername] = useState(false);
+  const [userNameFeedback, setUsernameFeedback] = useState();
 
+  const FBDB = useContext(FBDBContext);
   const FBAuth = useContext(FBAuthContext);
+  const navigate = useNavigate();
+
   const allowedChars = Array.from("abcdefghijklmnopqrstuvwxyz1234567890_");
+  let timer;
+
+  const checkUser = async (user) => {
+    const ref = doc(FBDB, "usernames", user);
+    const docSnap = await getDoc(ref);
+    if (docSnap.exists()) {
+      //user already exists
+      setValidUsername(false);
+      setUsernameFeedback("username is already taken");
+    } else {
+      //user doesn't exists
+      setValidUsername(true);
+      setUsernameFeedback(null);
+    }
+  };
 
   useEffect(() => {
+    let userLength = false;
+    let illegalChars = [];
+
+    if (username.length < 5) {
+      userLength = false;
+    } else {
+      userLength = true;
+    }
+
     //check if username is made of allowed chars
+    const chars = Array.from(username);
+    chars.forEach((chr) => {
+      if (allowedChars.includes(chr) === false) {
+        illegalChars.push(chr);
+      }
+    });
     //check if username does not exists in Firebase
-    //if both are true then allow signup
-    //else do not allow sign up
+    if (userLength === true && illegalChars.length === 0) {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        checkUser(username);
+      }, 1500);
+    }
   }, [username]);
 
   useEffect(() => {
@@ -42,11 +83,18 @@ export function Signup(props) {
     }
   }, [password]);
 
+  const AddUserName = async () => {
+    await setDoc(doc(FBDB, "usernames", username), {
+      name: username,
+    });
+  };
+
   const SignupHandler = () => {
     createUserWithEmailAndPassword(FBAuth, email, password)
       .then((user) => {
         //user is created in firebase
-        console.log(user);
+        AddUserName();
+        navigate("/");
       })
       .catch((error) => {
         console.log(error.code, error.message);
@@ -72,7 +120,12 @@ export function Signup(props) {
                 onChange={(evt) => setUsername(evt.target.value)}
                 value={username}
               />
+              <Form.Control.Feedback>Looks good</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {userNameFeedback}
+              </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group>
               <Form.Label>Email address</Form.Label>
               <Form.Control
@@ -96,7 +149,9 @@ export function Signup(props) {
               type="submit"
               className="my-2 w-100"
               size="lg"
-              disabled={validEmail && validPassword ? false : true}
+              disabled={
+                validEmail && validPassword && validUsername ? false : true
+              }
             >
               Sign up
             </Button>

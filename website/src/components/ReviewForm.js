@@ -14,10 +14,12 @@ export function ReviewForm(props) {
     const reviewTitle = data.get("title");
     const reviewBody = data.get("body");
     const reviewStars = data.get("stars");
+    const reviewUserId = data.get("uid");
     props.handler({
       title: reviewTitle,
       content: reviewBody,
       stars: reviewStars,
+      userid: reviewUserId,
     });
   };
 
@@ -67,6 +69,7 @@ export function ReviewForm(props) {
             placeholder="I love this book"
           />
         </Form.Group>
+        <Form.Control type="hidden" name="uid" value={props.user.uid} />
         <SubmitAlert show={submit} />
         <Button
           type="submit"
